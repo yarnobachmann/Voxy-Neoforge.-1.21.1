@@ -1,7 +1,7 @@
 package me.cortex.voxy.client.mixin.minecraft;
 
 import net.minecraft.client.gui.components.debug.DebugScreenEntryList;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,7 +19,7 @@ public abstract class MixinDebugScreenEntryList {
     @Inject(method = "rebuildCurrentList", at = @At(value = "INVOKE", target = "Ljava/util/List;sort(Ljava/util/Comparator;)V"))
     private void voxy$injectVersionDisplay(CallbackInfo cir) {
         if (this.isOverlayVisible()) {
-            var id = Identifier.fromNamespaceAndPath("voxy", "version");
+            var id = ResourceLocation.fromNamespaceAndPath("voxy", "version");
             if (!this.currentlyEnabled.contains(id)) {
                 this.currentlyEnabled.add(id);
             }

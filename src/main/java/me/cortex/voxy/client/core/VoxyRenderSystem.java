@@ -163,6 +163,11 @@ public class VoxyRenderSystem {
     }
 
 
+    // Sodium 0.6.x compatibility: overload without FogParameters
+    public Viewport<?> setupViewport(ChunkRenderMatrices matrices, double cameraX, double cameraY, double cameraZ) {
+        return setupViewport(matrices, null, cameraX, cameraY, cameraZ);
+    }
+
     public Viewport<?> setupViewport(ChunkRenderMatrices matrices, FogParameters fogParameters, double cameraX, double cameraY, double cameraZ) {
         var viewport = this.getViewport();
         if (viewport == null) {

@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version "1.14-SNAPSHOT"
+    id 'net.neoforged.moddev' version "1.0.21"
     id 'maven-publish'
 }
 
@@ -37,7 +37,11 @@ repositories {
         }
     }
 
-
+    // Forgified Fabric API for NeoForge
+    maven {
+        name = "Sinytra"
+        url = "https://maven.su5ed.dev/releases"
+    }
 
     maven { url = "https://maven.shedaniel.me/" }
     maven { url = "https://maven.terraformersmc.com/releases/" }
@@ -88,13 +92,22 @@ processResources {
     def version = project.version
 
     inputs.properties("version": version, "commit": hash, "buildtime": time)
-    filesMatching("fabric.mod.json") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": version, "commit": hash, "buildtime": time
     }
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/voxy.accesswidener")
+neoForge {
+    version = project.neoforge_version
+
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
+
+    parchment {
+        minecraftVersion = project.minecraft_version
+        mappingsVersion = "2024.11.17"
+    }
 }
 
 def modRuntimeOnlyMsk = {arg->}
@@ -108,51 +121,25 @@ if (!isInGHA) {
 
 dependencies {
     // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.neoforged:neoforge:${project.neoforge_version}"
 
+    // Forgified Fabric API for compatibility
+    implementation "dev.su5ed.sinytra.fabric-api:fabric-api:${project.forgified_fabric_version}+${project.neoforge_version}"
 
-    modRuntimeOnlyMsk(fabricApi.module("fabric-api-base", project.fabric_version))
-    modRuntimeOnlyMsk(fabricApi.module("fabric-rendering-fluids-v1", project.fabric_version))
-    modRuntimeOnlyMsk(fabricApi.module("fabric-resource-loader-v0", project.fabric_version))
-    modRuntimeOnlyMsk(fabricApi.module("fabric-command-api-v2", project.fabric_version))
+    // Sodium for NeoForge (0.6.9 - compatible with MC 1.21.1)
+    implementation "maven.modrinth:sodium:mc1.21.1-0.6.9-neoforge"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // Lithium for NeoForge
+    implementation("maven.modrinth:lithium:mc1.21.1-0.18.0-neoforge")
 
-    if (true) {
-        modImplementation "maven.modrinth:sodium:mc1.21.11-0.8.2-fabric"
-    } else {
-        modImplementation "net.caffeinemc:sodium-fabric:0.8.2-SNAPSHOT+mc1.21.11+"
-    }
-
-    modImplementation("maven.modrinth:lithium:mc1.21.11-0.21.0-fabric")
-
-    //modRuntimeOnlyMsk "drouarb:nvidium:0.4.1-beta4:1.21.6@jar"
-    modCompileOnly "drouarb:nvidium:0.4.1-beta4:1.21.6@jar"
-
-    modCompileOnly("maven.modrinth:modmenu:17.0.0-alpha.1")
-    modRuntimeOnlyMsk("maven.modrinth:modmenu:17.0.0-alpha.1")
-
-    modCompileOnly("maven.modrinth:iris:1.10.4+1.21.11-fabric")
-    modRuntimeOnlyMsk("maven.modrinth:iris:1.10.4+1.21.11-fabric")
-
-    //modCompileOnly("maven.modrinth:starlight:1.1.3+1.20.4")
-
-    //modCompileOnly("maven.modrinth:immersiveportals:v5.1.7-mc1.20.4")
-
-    modCompileOnly("maven.modrinth:chunky:1.4.54-fabric")
-    //modRuntimeOnlyMsk("maven.modrinth:chunky:1.4.40-fabric")
-
-    modRuntimeOnlyMsk("maven.modrinth:spark:1.10.152-fabric")
-    modRuntimeOnlyMsk("maven.modrinth:fabric-permissions-api:0.3.3")
-    //modRuntimeOnly("maven.modrinth:nsight-loader:1.2.0")
-
-    //modImplementation('io.github.douira:glsl-transformer:2.0.1')
-
-    modCompileOnly("maven.modrinth:vivecraft:1.21.9-1.3.2-fabric")
-
-    modCompileOnly("maven.modrinth:flashback:rNCr1Rbs")
+    // Optional mod dependencies - commented out for initial port
+    // TODO: Add NeoForge versions when available
+    //compileOnly "drouarb:nvidium:0.4.1-beta4:1.21.6@jar"
+    //compileOnly("maven.modrinth:modmenu:17.0.0-alpha.1")
+    //compileOnly("maven.modrinth:iris:1.10.4+1.21.11-neoforge")
+    //compileOnly("maven.modrinth:chunky:1.4.54-neoforge")
+    //compileOnly("maven.modrinth:vivecraft:1.21.9-1.3.2-neoforge")
+    //compileOnly("maven.modrinth:flashback:rNCr1Rbs")
 }
 
 

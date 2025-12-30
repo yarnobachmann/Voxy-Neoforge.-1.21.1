@@ -7,7 +7,7 @@ import net.caffeinemc.mods.sodium.api.config.option.*;
 import net.caffeinemc.mods.sodium.api.config.structure.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -50,7 +50,7 @@ public class SodiumConfigBuilder {
             if (enabler == null) {
                 return this.setEnabler(s->true);
             }
-            var id = Identifier.parse(enabler);
+            var id = ResourceLocation.parse(enabler);
             return this.setEnabler(s->s.readBooleanOption(id), enabler);
         }
 
@@ -165,7 +165,7 @@ public class SodiumConfigBuilder {
 
             Set<Identifier> flags = new LinkedHashSet<>();
             if (this.postRunner != null) {
-                var id = Identifier.parse(this.id);
+                var id = ResourceLocation.parse(this.id);
                 var runner = this.postRunner;
                 var getter = this.getter;
                 ctx.postRunner.register(id, ()->runner.accept(getter.get()), this.postRunnerConflicts);
@@ -216,7 +216,7 @@ public class SodiumConfigBuilder {
 
         @Override
         protected IntegerOptionBuilder createType(ConfigBuilder builder) {
-            return builder.createIntegerOption(Identifier.parse(this.id));
+            return builder.createIntegerOption(ResourceLocation.parse(this.id));
         }
 
         @Override
@@ -243,7 +243,7 @@ public class SodiumConfigBuilder {
 
         @Override
         protected BooleanOptionBuilder createType(ConfigBuilder builder) {
-            return builder.createBooleanOption(Identifier.parse(this.id));
+            return builder.createBooleanOption(ResourceLocation.parse(this.id));
         }
     }
 
@@ -265,7 +265,7 @@ public class SodiumConfigBuilder {
         private Map<Identifier, Hook> hooks = new LinkedHashMap<>();
 
         public PostApplyOps register(String name, Runnable postRunner, String... conflicts) {
-            return this.register(Identifier.parse(name), postRunner, mapIds(conflicts));
+            return this.register(ResourceLocation.parse(name), postRunner, mapIds(conflicts));
         }
 
         public PostApplyOps register(Identifier name, Runnable postRunner, Identifier... conflicts) {
