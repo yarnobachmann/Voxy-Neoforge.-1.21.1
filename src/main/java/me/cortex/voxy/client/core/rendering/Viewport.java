@@ -3,9 +3,11 @@ package me.cortex.voxy.client.core.rendering;
 import me.cortex.voxy.client.core.gl.GlBuffer;
 import me.cortex.voxy.client.core.rendering.util.DepthFramebuffer;
 import me.cortex.voxy.client.core.rendering.util.HiZBuffer;
-import net.caffeinemc.mods.sodium.client.util.FogParameters;
+// TODO: FogParameters removed in Sodium 0.6.x - fog rendering disabled for now
+// import net.caffeinemc.mods.sodium.client.util.FogParameters;
 import net.minecraft.util.Mth;
 import org.joml.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -35,7 +37,8 @@ public abstract class Viewport <A extends Viewport<A>> {
     public double cameraX;
     public double cameraY;
     public double cameraZ;
-    public FogParameters fogParameters;
+    // Disabled for Sodium 0.6.x compatibility - FogParameters no longer exists
+    // @Nullable public FogParameters fogParameters;
 
     public final Matrix4f MVP = new Matrix4f();
     public final Vector3i section = new Vector3i();
@@ -88,10 +91,13 @@ public abstract class Viewport <A extends Viewport<A>> {
         return (A) this;
     }
 
+    // Disabled for Sodium 0.6.x compatibility - FogParameters no longer exists
+    /*
     public A setFogParameters(FogParameters fogParameters) {
         this.fogParameters = fogParameters;
         return (A) this;
     }
+    */
 
     public A update() {
         //MVP

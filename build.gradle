@@ -12,6 +12,44 @@ base {
     archivesName = project.archives_base_name
 }
 
+// Exclude optional integrations from compilation - not all available for NeoForge 1.21.1
+// These can be re-enabled once NeoForge versions become available
+sourceSets {
+    main {
+        java {
+            // Iris shader integration
+            exclude 'me/cortex/voxy/client/iris/**'
+            exclude 'me/cortex/voxy/client/core/IrisVoxyRenderPipeline.java'
+            exclude 'me/cortex/voxy/client/core/util/IrisUtil.java'
+            exclude 'me/cortex/voxy/client/mixin/iris/**'
+
+            // Sodium config API (changed in Sodium 0.6.x)
+            exclude 'me/cortex/voxy/client/config/SodiumConfigBuilder.java'
+            exclude 'me/cortex/voxy/client/config/VoxyConfigMenu.java'
+            exclude 'me/cortex/voxy/client/config/IConfigPageSetter.java'
+
+            // ModMenu integration (Fabric-only)
+            exclude 'me/cortex/voxy/client/config/ModMenuIntegration.java'
+
+            // Vivecraft VR integration
+            exclude 'me/cortex/voxy/client/core/rendering/ViewportSelector.java'
+
+            // Flashback integration mixins
+            exclude 'me/cortex/voxy/client/mixin/flashback/**'
+
+            // Nvidium integration mixins
+            exclude 'me/cortex/voxy/client/mixin/nvidium/**'
+
+            // Debug screen integration (API changed in MC 1.21.1)
+            exclude 'me/cortex/voxy/client/VoxyDebugScreenEntry.java'
+            exclude 'me/cortex/voxy/client/mixin/minecraft/MixinDebugScreenEntryList.java'
+
+            // Sodium config integration mixin
+            exclude 'me/cortex/voxy/client/mixin/sodium/MixinVideoSettingsScreen.java'
+        }
+    }
+}
+
 repositories {
     exclusiveContent {
         forRepository {

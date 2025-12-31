@@ -34,7 +34,8 @@ import me.cortex.voxy.common.thread.ServiceManager;
 import me.cortex.voxy.common.world.WorldEngine;
 import me.cortex.voxy.commonImpl.VoxyCommon;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
-import net.caffeinemc.mods.sodium.client.util.FogParameters;
+// TODO: FogParameters removed in Sodium 0.6.x - fog rendering disabled for now
+// import net.caffeinemc.mods.sodium.client.util.FogParameters;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -164,12 +165,8 @@ public class VoxyRenderSystem {
     }
 
 
-    // Sodium 0.6.x compatibility: overload without FogParameters
+    // Sodium 0.6.x compatibility: FogParameters parameter removed
     public Viewport<?> setupViewport(ChunkRenderMatrices matrices, double cameraX, double cameraY, double cameraZ) {
-        return setupViewport(matrices, null, cameraX, cameraY, cameraZ);
-    }
-
-    public Viewport<?> setupViewport(ChunkRenderMatrices matrices, FogParameters fogParameters, double cameraX, double cameraY, double cameraZ) {
         var viewport = this.getViewport();
         if (viewport == null) {
             return null;
@@ -207,7 +204,8 @@ public class VoxyRenderSystem {
                 .setModelView(new Matrix4f(matrices.modelView()))
                 .setCamera(cameraX, cameraY, cameraZ)
                 .setScreenSize(width, height)
-                .setFogParameters(fogParameters)
+                // Disabled for Sodium 0.6.x compatibility - FogParameters no longer exists
+                // .setFogParameters(fogParameters)
                 .update();
 
         if (VoxyClient.getOcclusionDebugState()==0) {

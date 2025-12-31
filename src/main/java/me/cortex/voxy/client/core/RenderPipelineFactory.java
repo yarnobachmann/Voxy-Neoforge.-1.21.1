@@ -3,8 +3,8 @@ package me.cortex.voxy.client.core;
 import me.cortex.voxy.client.core.rendering.hierachical.AsyncNodeManager;
 import me.cortex.voxy.client.core.rendering.hierachical.HierarchicalOcclusionTraverser;
 import me.cortex.voxy.client.core.rendering.hierachical.NodeCleaner;
-import me.cortex.voxy.client.core.util.IrisUtil;
 // TODO: Re-enable Iris integration when NeoForge 1.21.1 version available
+// import me.cortex.voxy.client.core.util.IrisUtil;
 // import me.cortex.voxy.client.iris.IGetIrisVoxyPipelineData;
 import me.cortex.voxy.common.Logger;
 // import net.irisshaders.iris.Iris;
@@ -16,9 +16,10 @@ public class RenderPipelineFactory {
     public static AbstractRenderPipeline createPipeline(AsyncNodeManager nodeManager, NodeCleaner nodeCleaner, HierarchicalOcclusionTraverser traversal, BooleanSupplier frexSupplier) {
         //Note this is where will choose/create e.g. IrisRenderPipeline or normal pipeline
         AbstractRenderPipeline pipeline = null;
-        if (IrisUtil.IRIS_INSTALLED && IrisUtil.SHADER_SUPPORT) {
-            pipeline = createIrisPipeline(nodeManager, nodeCleaner, traversal, frexSupplier);
-        }
+        // Iris integration disabled for NeoForge 1.21.1 port
+        // if (IrisUtil.IRIS_INSTALLED && IrisUtil.SHADER_SUPPORT) {
+        //     pipeline = createIrisPipeline(nodeManager, nodeCleaner, traversal, frexSupplier);
+        // }
         if (pipeline == null) {
             pipeline = new NormalRenderPipeline(nodeManager, nodeCleaner, traversal, frexSupplier);
         }

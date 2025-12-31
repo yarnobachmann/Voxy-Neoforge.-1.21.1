@@ -104,7 +104,10 @@ public class NormalRenderPipeline extends AbstractRenderPipeline {
     @Override
     protected void finish(Viewport<?> viewport, int sourceFrameBuffer, int srcWidth, int srcHeight) {
         this.finalBlit.bind();
-        if (this.useEnvFog) {
+        // TODO: Fog rendering disabled - FogParameters removed in Sodium 0.6.x
+        // Environmental fog will not be rendered until Sodium 0.6.x fog API is implemented
+        /*
+        if (this.useEnvFog && viewport.fogParameters != null) {
             float start = viewport.fogParameters.environmentalStart();
             float end = viewport.fogParameters.environmentalEnd();
             if (Math.abs(end-start)>1) {
@@ -119,6 +122,7 @@ public class NormalRenderPipeline extends AbstractRenderPipeline {
                 glUniform4f(5, 0, 0, 0, 0);
             }
         }
+        */
 
         glBindTextureUnit(3, this.colourSSAOTex.id);
 
