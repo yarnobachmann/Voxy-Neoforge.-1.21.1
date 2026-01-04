@@ -1,8 +1,25 @@
 # Voxy NeoForge 1.21.1
 
-**Voxy** is a Level-of-Detail (LOD) rendering mod for Minecraft that extends your view distance far beyond vanilla limits.
+> **Unofficial NeoForge port** of the Voxy mod
 
-This is an **unofficial NeoForge port** of the [original Voxy mod](https://github.com/MCRcortex/voxy) (Fabric) for Minecraft 1.21.1.
+## Special Thanks
+
+**All credit for Voxy goes to [MCRcortex](https://github.com/MCRcortex)**, the original author and creator of this incredible LOD rendering mod.
+
+- **Original Repository:** [MCRcortex/voxy](https://github.com/MCRcortex/voxy)
+- **Original Author:** [MCRcortex](https://github.com/MCRcortex)
+
+This repository is a community port to NeoForge 1.21.1, created because the original author has indicated they will not be backporting to this version. We are deeply grateful for MCRcortex's work on Voxy.
+
+## License Notice
+
+The original Voxy mod is licensed under **All Rights Reserved** by MCRcortex. This port is provided for personal use. Please respect the original author's licensing terms.
+
+---
+
+## About
+
+**Voxy** is a Level-of-Detail (LOD) rendering mod for Minecraft that extends your view distance far beyond vanilla limits by rendering distant terrain at lower detail levels.
 
 ## Status
 
@@ -22,19 +39,22 @@ This is an **unofficial NeoForge port** of the [original Voxy mod](https://githu
 
 ## Requirements
 
-- Minecraft 1.21.1
-- NeoForge 21.1.x
-- [Sodium](https://modrinth.com/mod/sodium) mc1.21.1-0.6.13-neoforge or later
-- [Forgified Fabric API](https://modrinth.com/mod/forgified-fabric-api) for 1.21.1
+| Dependency | Version | Link |
+|------------|---------|------|
+| Minecraft | 1.21.1 | - |
+| NeoForge | 21.1.x | [NeoForge](https://neoforged.net/) |
+| Sodium | mc1.21.1-0.6.13-neoforge | [Modrinth](https://modrinth.com/mod/sodium/version/mc1.21.1-0.6.13-neoforge) |
+| Forgified Fabric API | 0.116.7+2.2.0+1.21.1 | [Modrinth](https://modrinth.com/mod/forgified-fabric-api/version/0.116.7+2.2.0+1.21.1) |
 
 ## Installation
 
 1. Install NeoForge for Minecraft 1.21.1
 2. Install Sodium (NeoForge version)
 3. Install Forgified Fabric API
-4. Drop the Voxy JAR into your `mods` folder
+4. Download Voxy from the [Releases](https://github.com/j-shelfwood/voxy-neoforge/releases) page
+5. Place the JAR in your `mods` folder
 
-## Building
+## Building from Source
 
 ```bash
 ./gradlew build
@@ -42,23 +62,16 @@ This is an **unofficial NeoForge port** of the [original Voxy mod](https://githu
 
 The built JAR will be in `build/libs/`.
 
-## Development
+## Contributing
 
-For development and contribution guidelines, see [CLAUDE.md](CLAUDE.md).
+For development guidelines, see [CLAUDE.md](CLAUDE.md).
 
 ### Validation Scripts
 
-The `scripts/` directory contains validation tools:
-- `validate_mixin_config.py` - Validates mixin registration and exclusions
-- `validate_mixin_targets.py` - Validates mixin target signatures
-- `validate_mixins.sh` - Post-build mixin verification
-- `setup_reference_sources.sh` - Sets up reference sources for development
+The `scripts/` directory contains build validation tools used in CI.
 
-## Credits
+## Links
 
-- Original Voxy mod by [MCRcortex](https://github.com/MCRcortex/voxy)
-- NeoForge port maintained by the community
-
-## License
-
-See [LICENSE.md](LICENSE.md)
+- **Original Voxy:** [github.com/MCRcortex/voxy](https://github.com/MCRcortex/voxy)
+- **This Port:** [github.com/j-shelfwood/voxy-neoforge](https://github.com/j-shelfwood/voxy-neoforge)
+- **Releases:** [Releases Page](https://github.com/j-shelfwood/voxy-neoforge/releases)
