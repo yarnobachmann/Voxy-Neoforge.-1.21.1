@@ -104,25 +104,15 @@ public class NormalRenderPipeline extends AbstractRenderPipeline {
     @Override
     protected void finish(Viewport<?> viewport, int sourceFrameBuffer, int srcWidth, int srcHeight) {
         this.finalBlit.bind();
-        // TODO: Fog rendering disabled - FogParameters removed in Sodium 0.6.x
-        // Environmental fog will not be rendered until Sodium 0.6.x fog API is implemented
-        /*
-        if (this.useEnvFog && viewport.fogParameters != null) {
-            float start = viewport.fogParameters.environmentalStart();
-            float end = viewport.fogParameters.environmentalEnd();
-            if (Math.abs(end-start)>1) {
-                float invEndFogDelta = 1f / (end - start);
-                float endDistance = Math.max(Minecraft.getInstance().gameRenderer.getRenderDistance(), 20*16);//TODO: make this constant a config option
-                endDistance *= (float)Math.sqrt(3);
-                float startDelta = -start * invEndFogDelta;
-                glUniform4f(4, invEndFogDelta, startDelta, Math.clamp(endDistance*invEndFogDelta+startDelta, 0, 1),0);//
-                glUniform4f(5, viewport.fogParameters.red(), viewport.fogParameters.green(), viewport.fogParameters.blue(), viewport.fogParameters.alpha());
-            } else {
-                glUniform4f(4, 0, 0, 0, 0);
-                glUniform4f(5, 0, 0, 0, 0);
-            }
+        // MC 1.21.1 / Sodium 0.6.x: Environmental fog disabled
+        // FogParameters.environmental*() methods don't exist in Sodium 0.6.x
+        // RenderSystem.getShaderFog*() returns standard fog (underwater/lava) not environmental fog
+        // TODO: Research Sodium 0.6.x environmental fog API or implement custom distance-based fog
+        if (this.useEnvFog) {
+            // Disable fog uniforms - set to zero (no fog effect)
+            glUniform4f(4, 0, 0, 0, 0);
+            glUniform4f(5, 0, 0, 0, 0);
         }
-        */
 
         glBindTextureUnit(3, this.colourSSAOTex.id);
 

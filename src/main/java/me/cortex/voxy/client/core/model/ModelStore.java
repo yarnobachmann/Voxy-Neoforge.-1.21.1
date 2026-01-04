@@ -2,9 +2,9 @@ package me.cortex.voxy.client.core.model;
 
 import me.cortex.voxy.client.core.gl.GlBuffer;
 import me.cortex.voxy.client.core.gl.GlTexture;
+import me.cortex.voxy.client.mixin.minecraft.AccessorTextureAtlas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.GL_NEAREST;
@@ -30,9 +30,10 @@ public class ModelStore {
         this.textures = new GlTexture().store(GL_RGBA8, Integer.numberOfTrailingZeros(ModelFactory.MODEL_TEXTURE_SIZE), ModelFactory.MODEL_TEXTURE_SIZE*3*256,ModelFactory.MODEL_TEXTURE_SIZE*2*256).name("ModelTextures");
 
 
-        // MC 1.21.1: TextureAtlas.maxMipLevel is now private, using default value
-        // TODO: Consider using reflection or NeoForge events to get actual mip level
-        int mipLvl = 4; // Default mipmap level for Minecraft terrain atlas
+        // MC 1.21.1: TextureAtlas.mipLevel is now private, use accessor mixin
+        TextureAtlas blockAtlas = (TextureAtlas) Minecraft.getInstance().getTextureManager()
+                .getTexture(TextureAtlas.LOCATION_BLOCKS);
+        int mipLvl = ((AccessorTextureAtlas) blockAtlas).voxy$getMipLevel();
 
         glSamplerParameteri(this.blockSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
         glSamplerParameteri(this.blockSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.LightLayer;
@@ -49,13 +49,17 @@ public class ModelTextureBakery {
     }
 
     public static int getMetaFromLayer(RenderType layer) {
-        boolean hasDiscard = layer == RenderType.CUTOUT ||
-                layer == RenderType.translucent()||
-                layer == RenderType.TRIPWIRE;
+        // MC 1.21.1: Must check both CUTOUT and CUTOUT_MIPPED
+        // CUTOUT_MIPPED is used by grass blocks, leaves, iron bars, etc.
+        boolean hasDiscard = layer == RenderType.cutout() ||
+                layer == RenderType.cutoutMipped() ||
+                layer == RenderType.translucent() ||
+                layer == RenderType.tripwire();
 
         boolean isMipped = layer == RenderType.solid() ||
+                layer == RenderType.cutoutMipped() ||
                 layer == RenderType.translucent() ||
-                layer == RenderType.TRIPWIRE;
+                layer == RenderType.tripwire();
 
         int meta = hasDiscard?1:0;
         meta |= true?2:0;
@@ -202,7 +206,7 @@ public class ModelTextureBakery {
 
         //Setup GL state
         int[] viewdat = new int[4];
-        int blockTextureId = 0; // MC 1.21.1: TODO - need to implement texture ID access
+        int blockTextureId;
 
         {
             glEnable(GL_STENCIL_TEST);
@@ -226,12 +230,9 @@ public class ModelTextureBakery {
             //Bind the capture framebuffer
             glBindFramebuffer(GL_FRAMEBUFFER, this.capture.framebuffer.id);
 
-            // TODO: MC 1.21.1 - Blaze3D OpenGL classes not accessible at compile time
-            // TODO MC 1.21.1: Need to create mixin accessor or use reflection to access texture GL ID
-            // var tex = Minecraft.getInstance().getTextureManager().getTexture(ResourceLocation.fromNamespaceAndPath("minecraft", "textures/atlas/blocks.png"));
-            // Temporary stub - commented out to allow compilation, will fail at runtime if this code path is reached
-            // throw new UnsupportedOperationException("Texture GL ID access not yet implemented for MC 1.21.1 - need mixin accessor");
-            // blockTextureId = getTextureId(tex);
+            // MC 1.21.1: Get block atlas texture ID via AbstractTexture.getId()
+            var tex = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
+            blockTextureId = tex.getId();
         }
 
         boolean isAnyShaded = false;

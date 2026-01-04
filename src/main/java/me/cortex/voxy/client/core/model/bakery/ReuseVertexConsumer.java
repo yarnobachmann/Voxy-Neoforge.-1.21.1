@@ -2,9 +2,7 @@ package me.cortex.voxy.client.core.model.bakery;
 
 
 import me.cortex.voxy.common.util.MemoryBuffer;
-import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-// MC 1.21.1: MipmapStrategy moved/removed - TODO: find replacement
 import org.lwjgl.system.MemoryUtil;
 
 import static me.cortex.voxy.client.core.model.bakery.BudgetBufferRenderer.VERTEX_FORMAT_SIZE;
@@ -85,22 +83,27 @@ public final class ReuseVertexConsumer implements VertexConsumer {
     public ReuseVertexConsumer quad(BakedQuad quad, int metadata) {
         // MC 1.21.1: BakedQuad API changed - shade() → isShade(), sprite() → getSprite()
         this.anyShaded |= quad.isShade();
-        // MC 1.21.1: MipmapStrategy check removed - TODO: reimplement texture analysis
-        // this.anyDarkendTex |= quad.getSprite().contents().mipmapStrategy == MipmapStrategy.DARK_CUTOUT;
-        this.anyDarkendTex = false; // Placeholder
+        // MC 1.21.1: MipmapStrategy check removed - darkened textures not detected
+        this.anyDarkendTex = false;
         this.ensureCanPut();
-        // MC 1.21.1: position(i) and packedUV(i) methods removed - need to parse vertices[] array
-        // TODO: Implement vertex data extraction from quad.getVertices()
-        /*
-        for (int i = 0; i < 4; i++) {
-            var pos = quad.position(i);
-            this.addVertex(pos.x(), pos.y(), pos.z());
-            long puv = quad.packedUV(i);
-            this.setUv(UVPair.unpackU(puv),UVPair.unpackV(puv));
 
+        // MC 1.21.1: Extract vertex data from int[] vertices array
+        // BLOCK format: 8 ints per vertex (pos xyz, color, uv0 xy, uv2, normal+pad)
+        int[] vertices = quad.getVertices();
+        for (int i = 0; i < 4; i++) {
+            int base = i * 8;
+            // Position: ints 0-2 are float bits
+            float x = Float.intBitsToFloat(vertices[base]);
+            float y = Float.intBitsToFloat(vertices[base + 1]);
+            float z = Float.intBitsToFloat(vertices[base + 2]);
+            // UV0: ints 4-5 are float bits
+            float u = Float.intBitsToFloat(vertices[base + 4]);
+            float v = Float.intBitsToFloat(vertices[base + 5]);
+
+            this.addVertex(x, y, z);
+            this.setUv(u, v);
             this.meta(metadata);
         }
-        */
         return this;
     }
 

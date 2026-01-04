@@ -1,40 +1,38 @@
 package me.cortex.voxy.client.mixin.minecraft;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.cortex.voxy.client.config.VoxyConfig;
 import me.cortex.voxy.client.core.IGetVoxyRenderSystem;
 import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.fog.FogData;
-import net.minecraft.client.renderer.fog.FogRenderer;
-import org.joml.Vector4f;
-import org.objectweb.asm.Opcodes;
+import net.minecraft.client.renderer.FogRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = FogRenderer.class,remap = true)
+/**
+ * MC 1.21.1 compatible fog mixin.
+ * Disables render distance fog when Voxy is active by pushing fog distance to infinity.
+ */
+@Mixin(FogRenderer.class)
 public class MixinFogRenderer {
-    @Inject(method = "setupFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getDevice()Lcom/mojang/blaze3d/systems/GpuDevice;", remap = false))
-    private void voxy$modifyFog(Camera camera, int rdInt, DeltaTracker tracker, float pTick, ClientLevel lvl, CallbackInfoReturnable<Vector4f> cir, @Local(type=FogData.class) FogData data) {
-        if (!(VoxyConfig.CONFIG.enableRendering&&VoxyConfig.CONFIG.enabled)) return;
+    /**
+     * Inject at the end of setupFog to override the fog parameters after vanilla sets them.
+     * MC 1.21.1 setupFog signature: (Camera, FogMode, float farPlaneDistance, boolean, float partialTick)
+     */
+    @Inject(method = "setupFog", at = @At("TAIL"))
+    private static void voxy$disableFog(Camera camera, FogRenderer.FogMode fogMode, float farPlaneDistance,
+                                         boolean shouldCreateFog, float partialTick, CallbackInfo ci) {
+        if (!(VoxyConfig.CONFIG.enableRendering && VoxyConfig.CONFIG.enabled)) return;
 
         var vrs = IGetVoxyRenderSystem.getNullable();
         if (vrs == null) return;
 
-        data.renderDistanceStart = 999999999;
-        data.renderDistanceEnd = 999999999;
-        /*
-        if (!VoxyConfig.CONFIG.useRenderFog) {
-        }*/
-        if (!VoxyConfig.CONFIG.useEnvironmentalFog) {
-            data.environmentalStart = 99999999;
-            data.environmentalEnd = 99999999;
+        // Only disable terrain fog, not sky fog (sky fog affects sky rendering)
+        if (fogMode == FogRenderer.FogMode.FOG_TERRAIN) {
+            // Push fog to effectively infinite distance
+            RenderSystem.setShaderFogStart(Float.MAX_VALUE);
+            RenderSystem.setShaderFogEnd(Float.MAX_VALUE);
         }
     }
 }

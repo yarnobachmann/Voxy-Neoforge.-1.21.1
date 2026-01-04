@@ -229,13 +229,17 @@ public class TextureUtils {
             a += darkend ? (C11 >>> 24) : ColorSRGB.srgbToLinear(C11 >>> 24);
         }
 
-        // MC 1.21.1: ARGB.linearToSrgbChannel() unavailable - using direct value as placeholder
-        // TODO: Implement proper linear to sRGB conversion for alpha channel
-        return ColorSRGB.linearToSrgb(
-                r / 4,
-                g / 4,
-                b / 4,
-                darkend ? ((int) a) / 4 : (int) (a / 4)
-        );
+        // MC 1.21.1: ARGB.linearToSrgbChannel() unavailable - implement manually
+        // Apply gamma correction (sRGB curve) to alpha when not darkened
+        int alphaValue = darkend ? ((int) a) / 4 : linearToSrgbChannel(a / 4);
+        return ColorSRGB.linearToSrgb(r / 4, g / 4, b / 4, alphaValue);
+    }
+
+    /**
+     * Convert linear alpha value to sRGB using gamma correction.
+     * Replacement for ARGB.linearToSrgbChannel() which doesn't exist in MC 1.21.1
+     */
+    private static int linearToSrgbChannel(float linear) {
+        return Math.clamp((int) (Math.pow(linear, 1.0 / 2.2) * 255), 0, 255);
     }
 }
