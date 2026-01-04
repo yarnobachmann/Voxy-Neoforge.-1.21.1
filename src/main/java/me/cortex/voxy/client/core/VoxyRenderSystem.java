@@ -3,6 +3,8 @@ package me.cortex.voxy.client.core;
 // MC 1.21.1: These classes are in .platform package (moved to .opengl in 1.21.8+)
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.shaders.FogShape;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.cortex.voxy.client.TimingStatistics;
 import me.cortex.voxy.client.VoxyClient;
 import me.cortex.voxy.client.config.VoxyConfig;
@@ -223,6 +225,10 @@ public class VoxyRenderSystem {
             return;
         }
 
+        // MC 1.21.1 NeoForge: Fog is handled by VoxyClientEvents.onRenderFog()
+        // which listens to ViewportEvent.RenderFog and pushes fog to infinity
+        // BEFORE terrain renders. This ensures no fog wall at vanilla render distance.
+
         TimingStatistics.resetSamplers();
 
         long startTime = System.nanoTime();
@@ -269,7 +275,6 @@ public class VoxyRenderSystem {
         //The entire rendering pipeline (excluding the chunkbound thing)
         this.pipeline.runPipeline(viewport, boundFB, dims[2], dims[3]);
         GPUTiming.INSTANCE.marker();
-
 
         TimingStatistics.main.stop();
         TimingStatistics.postDynamic.start();
