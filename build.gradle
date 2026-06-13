@@ -172,6 +172,28 @@ if (!isInGHA) {
     }
 }
 
+configurations {
+    sodiumDistribution
+}
+
+def sodiumVersion = "mc1.21.1-0.8.12-alpha.4-neoforge"
+def sodiumNestedJar = "META-INF/jarjar/net.caffeinemc.sodium-neoforge-0.8.12-alpha.4+mc1.21.1-mod.jar"
+def sodiumCompileJar = layout.buildDirectory.file("generated/compile-deps/sodium-neoforge-0.8.12-alpha.4-mod.jar")
+
+tasks.register("extractSodiumCompileJar", Copy) {
+    from({
+        zipTree(configurations.sodiumDistribution.singleFile).matching {
+            include sodiumNestedJar
+        }
+    })
+    into(sodiumCompileJar.map { it.asFile.parentFile })
+    eachFile {
+        path = name
+    }
+    includeEmptyDirs = false
+    rename { "sodium-neoforge-0.8.12-alpha.4-mod.jar" }
+}
+
 dependencies {
     // To change the versions see the gradle.properties file
     implementation "net.neoforged:neoforge:${project.neoforge_version}"
@@ -180,8 +202,9 @@ dependencies {
     implementation "org.sinytra.forgified-fabric-api:forgified-fabric-api:${project.forgified_fabric_version}"
 
     // Sodium for NeoForge (matches the 0.8 alpha used by the target modpack)
-    implementation "maven.modrinth:sodium:mc1.21.1-0.8.12-alpha.4-neoforge"
-    compileOnly files(".tools/sodium-neoforge-0.8.12-alpha.4-mod.jar")
+    sodiumDistribution "maven.modrinth:sodium:${sodiumVersion}"
+    implementation "maven.modrinth:sodium:${sodiumVersion}"
+    compileOnly files(sodiumCompileJar).builtBy(tasks.named("extractSodiumCompileJar"))
 
     // Lithium for NeoForge (0.15.1 - latest for MC 1.21.1)
     implementation("maven.modrinth:lithium:mc1.21.1-0.15.1-neoforge")
