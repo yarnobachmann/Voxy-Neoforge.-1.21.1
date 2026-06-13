@@ -17,12 +17,6 @@ base {
 sourceSets {
     main {
         java {
-            // Iris shader integration
-            exclude 'me/cortex/voxy/client/iris/**'
-            exclude 'me/cortex/voxy/client/core/IrisVoxyRenderPipeline.java'
-            exclude 'me/cortex/voxy/client/core/util/IrisUtil.java'
-            exclude 'me/cortex/voxy/client/mixin/iris/**'
-
             // Sodium config API (changed in Sodium 0.6.x)
             exclude 'me/cortex/voxy/client/config/SodiumConfigBuilder.java'
             exclude 'me/cortex/voxy/client/config/VoxyConfigMenu.java'
@@ -45,6 +39,7 @@ sourceSets {
             exclude 'me/cortex/voxy/client/mixin/minecraft/MixinDebugScreenEntryList.java'
 
             // Sodium config integration mixin
+            exclude 'me/cortex/voxy/client/config/VoxySodiumOptions.java'
             exclude 'me/cortex/voxy/client/mixin/sodium/MixinVideoSettingsScreen.java'
 
             // Blaze3D OpenGL debug mixin (GlDebug class not accessible in MC 1.21.1)
@@ -91,6 +86,10 @@ repositories {
 
     maven { url = "https://maven.shedaniel.me/" }
     maven { url = "https://maven.terraformersmc.com/releases/" }
+    maven {
+        name = "CurseMaven"
+        url = "https://cursemaven.com"
+    }
 
     exclusiveContent {
         forRepository {
@@ -180,8 +179,9 @@ dependencies {
     // Forgified Fabric API for compatibility (includes Fabric Loader API)
     implementation "org.sinytra.forgified-fabric-api:forgified-fabric-api:${project.forgified_fabric_version}"
 
-    // Sodium for NeoForge (0.6.13 - latest for MC 1.21.1)
-    implementation "maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge"
+    // Sodium for NeoForge (matches the 0.8 alpha used by the target modpack)
+    implementation "maven.modrinth:sodium:mc1.21.1-0.8.12-alpha.4-neoforge"
+    compileOnly files(".tools/sodium-neoforge-0.8.12-alpha.4-mod.jar")
 
     // Lithium for NeoForge (0.15.1 - latest for MC 1.21.1)
     implementation("maven.modrinth:lithium:mc1.21.1-0.15.1-neoforge")
@@ -197,7 +197,7 @@ dependencies {
     // TODO: Add NeoForge versions when available
     //compileOnly "drouarb:nvidium:0.4.1-beta4:1.21.6@jar"
     //compileOnly("maven.modrinth:modmenu:17.0.0-alpha.1")
-    //compileOnly("maven.modrinth:iris:1.10.4+1.21.11-neoforge")
+    compileOnly("curse.maven:irisshaders-455508:6661598")
     //compileOnly("maven.modrinth:chunky:1.4.54-neoforge")
     //compileOnly("maven.modrinth:vivecraft:1.21.9-1.3.2-neoforge")
     //compileOnly("maven.modrinth:flashback:rNCr1Rbs")
@@ -231,12 +231,15 @@ jar {
     }
 }
 
+def pythonExecutable = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows') ? 'python' : 'python3'
+
 // Validate mixin configuration (registration, exclusions, remap flags)
 task validateMixinConfig(type: Exec) {
     description = 'Validates mixin registration, exclusions, and configuration'
     group = 'verification'
 
-    commandLine 'python3', 'scripts/validate_mixin_config.py'
+    commandLine pythonExecutable, 'scripts/validate_mixin_config.py'
+    environment 'PYTHONIOENCODING', 'utf-8'
 
     // Only run if script exists
     onlyIf {
@@ -249,7 +252,8 @@ task validateMixinSignatures(type: Exec) {
     description = 'Validates @Inject/@Shadow targets against Minecraft source'
     group = 'verification'
 
-    commandLine 'python3', 'scripts/validate_mixin_targets.py'
+    commandLine pythonExecutable, 'scripts/validate_mixin_targets.py'
+    environment 'PYTHONIOENCODING', 'utf-8'
 
     // Only run if script and MC sources exist
     onlyIf {
@@ -268,11 +272,12 @@ task validateMixins(type: Exec) {
     description = 'Validates that all mixins declared in JSON configs are present in the JAR'
     group = 'verification'
 
-    commandLine 'bash', 'scripts/validate_mixins.sh'
+    commandLine pythonExecutable, 'scripts/validate_mixins.py'
+    environment 'PYTHONIOENCODING', 'utf-8'
 
     // Only run if script exists
     onlyIf {
-        file('scripts/validate_mixins.sh').exists()
+        file('scripts/validate_mixins.py').exists()
     }
 }
 

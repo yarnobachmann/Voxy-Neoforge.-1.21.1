@@ -23,6 +23,9 @@ public class DepthFramebuffer {
     }
 
     public boolean resize(int width, int height) {
+        if (width < 1 || height < 1) {
+            throw new IllegalArgumentException("Depth framebuffer size must be at least 1x1, got " + width + "x" + height);
+        }
         if (this.depthBuffer == null || this.depthBuffer.getWidth() != width || this.depthBuffer.getHeight() != height) {
             if (this.depthBuffer != null) {
                 this.depthBuffer.free();

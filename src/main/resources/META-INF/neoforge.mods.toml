@@ -39,8 +39,18 @@ versionRange="[0.102.0,)"
 ordering="BEFORE"
 side="BOTH"
 
+[[dependencies.voxy]]
+modId="iris"
+type="optional"
+versionRange="[1.8.12,)"
+ordering="AFTER"
+side="CLIENT"
+
 [[mixins]]
 config="client.voxy.mixins.json"
+
+[[mixins]]
+config="iris.voxy.mixins.json"
 
 [[mixins]]
 config="common.voxy.mixins.json"

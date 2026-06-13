@@ -1,103 +1,128 @@
 # Voxy NeoForge 1.21.1
 
-> **Unofficial NeoForge port** of the Voxy mod
+An unofficial NeoForge 1.21.1 port of **Voxy**, the high-performance Level of Detail terrain renderer for Minecraft.
 
-## Special Thanks
+Voxy renders far-away terrain at lower detail so you can see much farther than vanilla render distance without asking your computer to draw every distant block as a full chunk. This port is aimed at NeoForge modpacks that want Voxy-style distant terrain rendering without running the Fabric build through a compatibility layer.
 
-**All credit for Voxy goes to [MCRcortex](https://github.com/MCRcortex)**, the original author and creator of this incredible LOD rendering mod.
-
-- **Original Repository:** [MCRcortex/voxy](https://github.com/MCRcortex/voxy)
-- **Original Author:** [MCRcortex](https://github.com/MCRcortex)
-
-This repository is a community port to NeoForge 1.21.1, created because the original author has indicated they will not be backporting to this version. We are deeply grateful for MCRcortex's work on Voxy.
-
-## License Notice
-
-The original Voxy mod is licensed under **All Rights Reserved** by MCRcortex. This port is provided for personal use. Please respect the original author's licensing terms.
-
----
-
-## About
-
-**Voxy** is a Level-of-Detail (LOD) rendering mod for Minecraft that extends your view distance far beyond vanilla limits by rendering distant terrain at lower detail levels.
-
-## Why This Port?
-
-You might wonder: "Why not just use the Fabric version with [Sinytra Connector](https://github.com/Sinytra/Connector)?"
-
-| Aspect | Native NeoForge Port (this repo) | Sinytra Connector |
-|--------|----------------------------------|-------------------|
-| **Performance** | No translation overhead | Runtime translation layer |
-| **Mod Integration** | Native NeoForge API calls | Fabric API emulation via FFAPI |
-| **Maintenance** | Must track upstream Voxy changes | Just drop in Fabric jar |
-| **Stability** | Tested against NeoForge directly | May have edge cases from translation |
-| **Dependencies** | Forgified Fabric API | Connector + Forgified Fabric API |
-
-**Bottom line:** For a performance-critical LOD mod like Voxy, eliminating the translation layer overhead is worthwhile. If you prioritize simplicity and don't mind potential overhead, Sinytra Connector is a valid alternative.
+> All original Voxy credit belongs to [MCRcortex](https://github.com/MCRcortex), the creator of Voxy.
 
 ## Status
 
-**Alpha** - Functional with known limitations.
+This port is currently **alpha** software. It builds for Minecraft 1.21.1 and NeoForge 21.1.x, but you should test it in a copy of your world or a fresh profile before adding it to a long-term modpack.
 
-### Working Features
-- LOD terrain rendering beyond vanilla render distance
-- Smooth transitions between LOD and vanilla chunks
-- Fog integration (disabled at LOD boundaries)
-- Block model baking for all render types (solid, cutout, cutout_mipped, translucent)
-- Delayed chunk unloading to prevent pop-out effects
+### What Works
 
-### Current Limitations
-- Requires Sodium 0.6.13+ (NeoForge version)
-- Some optional integrations not yet ported (Iris, Nvidium, Vivecraft)
-- Debug screen integration disabled (MC 1.21.1 API changes)
+- Distant Level of Detail terrain rendering
+- Smooth handoff between vanilla chunks and LOD terrain
+- Sodium-based rendering integration
+- NeoForge mod metadata and dependency declarations
+- Fog handling at LOD boundaries
+- Block model baking for solid, cutout, cutout-mipped, and translucent render layers
+
+### Known Limitations
+
+- Client-side only; do not install this on a dedicated server.
+- Requires the NeoForge build of Sodium.
+- Shader and optional mod integrations are still being ported and tested.
+- Some behavior may differ from upstream Fabric Voxy while this NeoForge port is stabilized.
 
 ## Requirements
 
-### Required Dependencies
+| Requirement | Version |
+| --- | --- |
+| Minecraft | 1.21.1 |
+| NeoForge | 21.1.x |
+| Sodium | mc1.21.1-0.6.13-neoforge or newer compatible NeoForge build |
+| Forgified Fabric API | 0.116.7+2.2.0+1.21.1 or compatible |
 
-| Dependency | Version | Link |
-|------------|---------|------|
-| Minecraft | 1.21.1 | - |
-| NeoForge | 21.1.x | [NeoForge](https://neoforged.net/) |
-| Sodium | mc1.21.1-0.6.13-neoforge | [Modrinth](https://modrinth.com/mod/sodium/version/mc1.21.1-0.6.13-neoforge) |
-| Forgified Fabric API | 0.116.7+2.2.0+1.21.1 | [Modrinth](https://modrinth.com/mod/forgified-fabric-api/version/0.116.7+2.2.0+1.21.1) |
+Recommended:
 
-### Recommended Dependencies
+| Mod | Why |
+| --- | --- |
+| Reese's Sodium Options | Better access to Sodium-related video settings |
+| Lithium | General game performance improvements |
 
-| Dependency | Purpose | Link |
-|------------|---------|------|
-| Reese's Sodium Options | Better settings UI for Sodium + Voxy config access | [Modrinth](https://modrinth.com/mod/reeses-sodium-options) |
-| Lithium | General performance improvements | [Modrinth](https://modrinth.com/mod/lithium) |
+The current development artifact has also been built against Sodium `mc1.21.1-0.8.12-alpha.4-neoforge` for alpha modpack testing.
 
 ## Installation
 
-> **Note:** Due to Voxy's ARR (All Rights Reserved) license, compiled JARs are not distributed. You must build from source.
+1. Install Minecraft 1.21.1 with NeoForge 21.1.x.
+2. Add the required dependencies to your `mods` folder.
+3. Download the latest `voxy-*.jar` from this repository's GitHub Releases page.
+4. Place the Voxy jar in your `mods` folder.
+5. Start the game once and check the mod list for `Voxy`.
 
-1. Install NeoForge for Minecraft 1.21.1
-2. Install required dependencies (see above)
-3. Build Voxy from source (see below)
-4. Place the built JAR in your `mods` folder
+For modpacks, include the Voxy jar together with the required dependency versions listed above. Keep Voxy client-side only unless a future release explicitly states otherwise.
 
-## Building from Source
+## Configuration
+
+Voxy's options are exposed through the client configuration and Sodium-related settings screens where available. If the config screen is not visible in your setup, install Reese's Sodium Options and confirm that Sodium is loading correctly.
+
+Useful first-test settings:
+
+- Start with a conservative render distance and increase it gradually.
+- Test in a fresh world before using a heavily modded save.
+- If you use shader packs, test with shaders disabled first, then enable them after confirming Voxy renders correctly.
+
+## Troubleshooting
+
+### The Game Crashes on Startup
+
+- Confirm you are using Minecraft 1.21.1, not another 1.21.x version.
+- Confirm every dependency is the NeoForge build, especially Sodium.
+- Remove shader packs and optional rendering mods for the first test.
+- Check `latest.log` for missing dependency or mixin errors.
+
+### Distant Terrain Does Not Render
+
+- Confirm the mod appears in the in-game mod list.
+- Confirm Sodium is installed and active.
+- Lower other rendering settings temporarily to rule out GPU memory pressure.
+- Test without shaders or other rendering overhaul mods.
+
+### Shader Issues
+
+Shader support is sensitive during the port. If a shader pack breaks Voxy rendering, test without the shader pack and report the shader, Sodium, NeoForge, and Voxy versions together with the relevant log.
+
+## Building From Source
+
+Clone the repository and run Gradle:
 
 ```bash
-git clone https://github.com/j-shelfwood/voxy-neoforge.git
-cd voxy-neoforge
+git clone https://github.com/yarnobachmann/Voxy-Neoforge.-1.21.1.git
+cd Voxy-Neoforge.-1.21.1
 ./gradlew build
 ```
 
-The built JAR will be in `build/libs/`.
+On Windows:
 
-## Contributing
+```powershell
+git clone https://github.com/yarnobachmann/Voxy-Neoforge.-1.21.1.git
+cd Voxy-Neoforge.-1.21.1
+.\gradlew.bat build
+```
 
-For development guidelines, see [CLAUDE.md](CLAUDE.md).
+The compiled jar will be written to `build/libs/`.
 
-### Validation Scripts
+## Development Notes
 
-The `scripts/` directory contains build validation tools used in CI.
+This repository is a NeoForge 1.21.1 port of the Fabric Voxy codebase. Porting work should be verified against local reference sources before changing mixins, access transformers, or Minecraft/Sodium integration points.
 
-## Links
+Important files:
 
-- **Original Voxy:** [github.com/MCRcortex/voxy](https://github.com/MCRcortex/voxy)
-- **This Port:** [github.com/j-shelfwood/voxy-neoforge](https://github.com/j-shelfwood/voxy-neoforge)
-- **Sinytra Connector (alternative):** [github.com/Sinytra/Connector](https://github.com/Sinytra/Connector)
+- `build.gradle` - Gradle build, dependencies, and NeoForge setup
+- `gradle.properties` - Minecraft, NeoForge, dependency, and mod versions
+- `src/main/resources/META-INF/neoforge.mods.toml` - NeoForge metadata
+- `src/main/resources/client.voxy.mixins.json` - Client mixin configuration
+- `src/main/resources/common.voxy.mixins.json` - Common mixin configuration
+- `src/main/resources/iris.voxy.mixins.json` - Iris-related mixin configuration
+
+## Credits
+
+- [MCRcortex](https://github.com/MCRcortex) - Original Voxy author
+- [Original Voxy repository](https://github.com/MCRcortex/voxy)
+- NeoForge, Sodium, and Forgified Fabric API contributors
+
+## License
+
+See [LICENSE.md](LICENSE.md). This is an unofficial port and is not affiliated with Mojang, Microsoft, NeoForge, Sodium, or the original Voxy project.

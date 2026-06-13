@@ -5,6 +5,7 @@
 /run/
 /out/
 /logs/
+/.tools/
 
 # Reference dependency clones for development
 /.reference/

@@ -297,6 +297,19 @@ public class IrisVoxyRenderPipelineData {
     private record UniformWritingHolder(String name, UniformType type, Long2ObjectFunction<LongConsumer> writingFactory) {
 
     }
+
+    private static boolean tryAddFallbackUniform(List<UniformWritingHolder> uniforms, Set<String> seenUniforms, String name) {
+        if (!name.equals("isPaleGarden")) {
+            return false;
+        }
+        if (!seenUniforms.add(name)) {
+            throw new IllegalArgumentException("Already added uniform: " + name);
+        }
+        Logger.warn("Uniform '" + name + "' was requested by the Voxy shader patch but is not available from Iris; using 0");
+        uniforms.add(new UniformWritingHolder(name, UniformType.INT, offset -> ptr -> MemoryUtil.memPutInt(ptr + offset, 0)));
+        return true;
+    }
+
     private static List<UniformWritingHolder> createUniformSet(CustomUniforms cu, IrisShaderPatch patch) {
         //This is a fking awful hack... but it works thinks
 
@@ -408,13 +421,21 @@ public class IrisVoxyRenderPipelineData {
             for (var uniform : uniforms) {
                 uniformsUnseen.remove(uniform.name);
             }
+            uniformsUnseen.removeIf(name -> tryAddFallbackUniform(uniforms, seenUniforms, name));
+        }
+
+        if (uniforms.size() != patch.getUniformList().length) {
+            Set<String> uniformsUnseen = new HashSet<>(List.of(patch.getUniformList()));
+            for (var uniform : uniforms) {
+                uniformsUnseen.remove(uniform.name);
+            }
             Logger.error("The following uniforms could not be found: [" + uniformsUnseen.stream().sorted(String::compareToIgnoreCase).collect(Collectors.joining(","))+"]");
         }
         //In _theory_ this should work?
         return uniforms;
     }
 
-    private record TextureWSampler(String name, IntSupplier texture, IntSupplier sampler) { }
+    private record TextureWSampler(String name, IntSupplier texture, GlSampler sampler) { }
     public record ImageSet(String layout, IntConsumer bindingFunction) {
 
     }
@@ -445,30 +466,27 @@ public class IrisVoxyRenderPipelineData {
             }
 
             @Override
-            public boolean addDefaultSampler(TextureType type, IntSupplier texture, ValueUpdateNotifier notifier, Supplier<GlSampler> sampler, String... names) {
+            public boolean addDefaultSampler(TextureType type, IntSupplier texture, ValueUpdateNotifier notifier, GlSampler sampler, String... names) {
                 Logger.error("Unsupported default sampler");
                 return false;
             }
 
             @Override
-            public boolean addDynamicSampler(TextureType type, IntSupplier texture, Supplier<GlSampler> sampler, String... names) {
+            public boolean addDynamicSampler(TextureType type, IntSupplier texture, GlSampler sampler, String... names) {
                 return this.addDynamicSampler(type, texture, null, sampler, names);
             }
 
             @Override
-            public boolean addDynamicSampler(TextureType type, IntSupplier texture, ValueUpdateNotifier notifier, Supplier<GlSampler> sampler, String... names) {
+            public boolean addDynamicSampler(TextureType type, IntSupplier texture, ValueUpdateNotifier notifier, GlSampler sampler, String... names) {
                 if (!this.hasSampler(names)) return false;
-                samplerSet.add(new TextureWSampler(this.name(names), texture, sampler!=null?()->{
-                    var s = sampler.get();
-                    return s!=null?s.getId():-1;
-                }:()->-1));
+                samplerSet.add(new TextureWSampler(this.name(names), texture, sampler));
                 return true;
             }
 
             @Override
             public void addExternalSampler(int texture, String... names) {
                 if (!this.hasSampler(names)) return;
-                samplerSet.add(new TextureWSampler(this.name(names), ()->texture, ()->-1));
+                samplerSet.add(new TextureWSampler(this.name(names), ()->texture, null));
             }
         };
 
@@ -511,9 +529,8 @@ public class IrisVoxyRenderPipelineData {
                 int unit = j+base;
                 var ts = samplers[j];
                 glBindTextureUnit(unit, ts.texture.getAsInt());
-                int sampler = ts.sampler.getAsInt();
-                if (sampler != -1) {
-                    glBindSampler(unit, sampler);
+                if (ts.sampler != null) {
+                    glBindSampler(unit, ts.sampler.getId());
                 }//TODO: might need to bind sampler 0
             }
         };

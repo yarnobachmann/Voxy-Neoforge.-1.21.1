@@ -30,8 +30,7 @@ import me.cortex.voxy.client.core.rendering.util.DownloadStream;
 import me.cortex.voxy.client.core.rendering.util.PrintfDebugUtil;
 import me.cortex.voxy.client.core.rendering.util.UploadStream;
 import me.cortex.voxy.client.core.util.GPUTiming;
-// MC 1.21.1 NeoForge: Iris shader integration excluded
-// import me.cortex.voxy.client.core.util.IrisUtil;
+import me.cortex.voxy.client.core.util.IrisUtil;
 import me.cortex.voxy.common.Logger;
 import me.cortex.voxy.common.thread.ServiceManager;
 import me.cortex.voxy.common.world.WorldEngine;
@@ -201,6 +200,8 @@ public class VoxyRenderSystem {
                 width = (int) (width*factor[0]);
                 height = (int) (height*factor[1]);
             }
+            width = Math.max(1, width);
+            height = Math.max(1, height);
         }
 
         viewport
@@ -222,6 +223,9 @@ public class VoxyRenderSystem {
 
     public void renderOpaque(Viewport<?> viewport) {
         if (viewport == null) {
+            return;
+        }
+        if (viewport.width < 1 || viewport.height < 1) {
             return;
         }
 
@@ -262,8 +266,7 @@ public class VoxyRenderSystem {
         this.pipeline.preSetup(viewport);
 
         TimingStatistics.E.start();
-        // MC 1.21.1 NeoForge: Iris shader integration excluded - irisShadowActive() returns false (no Iris shadows)
-        if ((!VoxyClient.disableSodiumChunkRender())&&!false) {
+        if ((!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive()) {
             this.chunkBoundRenderer.render(viewport);
         } else {
             viewport.depthBoundingBuffer.clear(0);
@@ -313,8 +316,7 @@ public class VoxyRenderSystem {
                 glBindSampler(i, 0);
             }
 
-            // MC 1.21.1 NeoForge: Iris shader integration excluded - clearIrisSamplers() is a no-op
-            // IrisUtil.clearIrisSamplers();//Thanks iris (sigh)
+            IrisUtil.clearIrisSamplers();//Thanks iris (sigh)
 
             //TODO: should/needto actually restore all of these, not just clear them
             //Clear all the bindings

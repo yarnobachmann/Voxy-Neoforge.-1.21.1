@@ -236,7 +236,7 @@ public class IrisShaderPatch {
         return this.patchData.translucentPatchData;
     }
     public String getTAAShift() {
-        return this.patchData.taaOffset == null?"{return vec2(0.0);}":this.patchData.taaOffset;
+        return "{return vec2(0.0);}";
     }
     public String[] getUniformList() {
         return this.patchData.uniforms;
@@ -263,7 +263,8 @@ public class IrisShaderPatch {
             return new float[]{1,1};
         }
         if (this.patchData.renderScale.length == 1) {
-            return new float[]{this.patchData.renderScale[0],this.patchData.renderScale[0]};
+            float scale = Math.max(0.01f, this.patchData.renderScale[0]);
+            return new float[]{scale, scale};
         }
         return new float[]{Math.max(0.01f,this.patchData.renderScale[0]),Math.max(0.01f,this.patchData.renderScale[1])};
     }
@@ -304,7 +305,6 @@ public class IrisShaderPatch {
 
     private static final Gson GSON = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.PRIVATE)
-            .setStrictness(Strictness.LENIENT)
             .create();
 
     public static IrisShaderPatch makePatch(ShaderPack ipack, AbsolutePackPath directory, Function<AbsolutePackPath, String> sourceProvider) {
