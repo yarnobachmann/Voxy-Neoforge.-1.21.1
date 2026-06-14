@@ -117,10 +117,8 @@ void traverse(in UnpackedNode node) {
             } else {
                 //printf("B");
                 addRequest(node);
-                //TODO: use self mesh (is error state if it doesnt have one since all leaf nodes should have a mesh)
-                // Basicly guarenteed to have a mesh, if it doesnt it is very very bad and incorect since its a violation of the graph properties
-                // that all leaf nodes must contain a mesh
-                enqueueSelfForRender(node);
+                // Do not render the coarse parent while the requested children are missing.
+                // It avoids dark water triangles and giant temporary blocks while moving.
             }
         } else {
             if (hasMesh(node)) {

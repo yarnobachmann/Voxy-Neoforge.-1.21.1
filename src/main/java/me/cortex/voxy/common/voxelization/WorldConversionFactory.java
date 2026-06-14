@@ -282,7 +282,7 @@ public class WorldConversionFactory {
         int iMSK1 = (~MSK)+1;
         int q = 0;
         while (true) {
-            data[16*16*16 + i++] = Mipper.mip(
+            data[16*16*16 + i++] = Mipper.mip(1,
                     data[q|G(0,0,0)], data[q|G(1,0,0)], data[q|G(0,0,1)], data[q|G(1,0,1)],
                     data[q|G(0,1,0)], data[q|G(1,1,0)], data[q|G(0,1,1)], data[q|G(1,1,1)],
                     mapper
@@ -298,7 +298,7 @@ public class WorldConversionFactory {
             for (int z = 0; z < 8; z += 2) {
                 for (int x = 0; x < 8; x += 2) {
                     data[16*16*16 + 8*8*8 + i++] =
-                            Mipper.mip(
+                            Mipper.mip(2,
                                     data[H(x, y, z)],       data[H(x+1, y, z)],       data[H(x, y, z+1)],      data[H(x+1, y, z+1)],
                                     data[H(x, y+1, z)],  data[H(x+1, y+1, z)],  data[H(x, y+1, z+1)], data[H(x+1, y+1, z+1)],
                                     mapper);
@@ -312,7 +312,7 @@ public class WorldConversionFactory {
             for (int z = 0; z < 4; z += 2) {
                 for (int x = 0; x < 4; x += 2) {
                     data[16*16*16 + 8*8*8 + 4*4*4 + i++] =
-                            Mipper.mip(
+                            Mipper.mip(3,
                                     data[I(x, y, z)],       data[I(x+1, y, z)],       data[I(x, y, z+1)],      data[I(x+1, y, z+1)],
                                     data[I(x, y+1, z)],   data[I(x+1, y+1, z)],  data[I(x, y+1, z+1)], data[I(x+1, y+1, z+1)],
                                     mapper);
@@ -322,7 +322,7 @@ public class WorldConversionFactory {
 
         //Mip L4
         data[16*16*16 + 8*8*8 + 4*4*4 + 2*2*2] =
-                Mipper.mip(
+                Mipper.mip(4,
                         data[J(0, 0, 0)], data[J(1, 0, 0)], data[J(0, 0, 1)], data[J(1, 0, 1)],
                         data[J(0, 1, 0)], data[J(1, 1, 0)], data[J(0, 1, 1)], data[J(1, 1, 1)],
                         mapper);

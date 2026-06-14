@@ -157,6 +157,11 @@ public class MDICSectionRenderer extends AbstractSectionRenderer<MDICViewport, B
         }
         MemoryUtil.memPutFloat(ptr, earthRadius); ptr += 4;
 
+        float vanillaRenderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16.0f;
+        float translucentFadeWidth = Math.max(24.0f, VoxyConfig.CONFIG.lodBoundaryBuffer * 16.0f);
+        MemoryUtil.memPutFloat(ptr, vanillaRenderDistance); ptr += 4;
+        MemoryUtil.memPutFloat(ptr, translucentFadeWidth); ptr += 4;
+
         UploadStream.INSTANCE.commit();
     }
 

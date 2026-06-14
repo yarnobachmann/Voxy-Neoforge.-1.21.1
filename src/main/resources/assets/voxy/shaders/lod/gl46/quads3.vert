@@ -20,6 +20,7 @@ layout(location = 0) out flat uvec4 interData;
 #ifndef USE_NV_BARRY
 layout(location = 1) out vec2 uv;
 #endif
+layout(location = 2) out vec3 fragmentCameraPos;
 
 #ifdef DEBUG_RENDER
 layout(location = 7) out flat uint quadDebug;
@@ -37,7 +38,13 @@ void main() {
     setupQuad(quad, quadData[uint(gl_VertexID)>>2], positionBuffer[gl_BaseInstance], (gl_VertexID&3) == 1);
 
     uint cornerId = gl_VertexID&3;
-    gl_Position = getQuadCornerPos(quad, cornerId);
+    vec2 cornerMask = vec2((cornerId>>1)&1u, cornerId&1u)*quad.lodScale;
+    vec3 point = quad.basePoint + swizzelDataAxis(quad.axis,vec3(quad.quadSizeAddin*cornerMask,0));
+    fragmentCameraPos = point;
+
+    point = applyWorldCurvature(point);
+    gl_Position = MVP * vec4(point, 1.0f);
+    gl_Position.xy += taaOffset*gl_Position.w;
 
     #ifndef USE_NV_BARRY
     uv = getCornerUV(quad, cornerId);

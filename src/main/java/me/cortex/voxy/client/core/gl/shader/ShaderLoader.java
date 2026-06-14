@@ -7,6 +7,8 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +51,7 @@ public class ShaderLoader {
         String processed = "\n" + shaderSource + "\n//beans";
 
         // Apply Sodium's shader constants processing (handles #define etc.)
-        processed = ShaderParser.parseShader(processed, ShaderConstants.builder().build()).src();
+        processed = parseWithSodium(processed);
 
         // Normalize line endings and strip original #version (upstream behavior)
         processed = processed.replaceAll("\r\n", "\n");
@@ -57,6 +59,21 @@ public class ShaderLoader {
 
         // Prepend our target GLSL version
         return "#version 460 core\n" + processed;
+    }
+
+    private static String parseWithSodium(String source) {
+        try {
+            Method parseShader = ShaderParser.class.getMethod("parseShader", String.class, ShaderConstants.class);
+            Object parsed = parseShader.invoke(null, source, ShaderConstants.builder().build());
+            if (parsed instanceof String string) {
+                return string;
+            }
+
+            Method src = parsed.getClass().getMethod("src");
+            return (String) src.invoke(parsed);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to parse shader with Sodium", e);
+        }
     }
 
     /**

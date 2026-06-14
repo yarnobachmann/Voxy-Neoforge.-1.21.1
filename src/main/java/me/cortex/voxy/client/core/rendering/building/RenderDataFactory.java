@@ -248,15 +248,29 @@ public class RenderDataFactory {
             //Do increment here
             i++;
 
-            if ((i & 63) == 0 && notEmpty != 0) {
+            if ((i & 63) == 0) {
+                int maskIndex = (i >> 5) - 2;
+                if (notEmpty == 0) {
+                    this.opaqueMasks[maskIndex] = 0;
+                    this.opaqueMasks[maskIndex + 1] = 0;
+                    this.nonOpaqueMasks[maskIndex] = 0;
+                    this.nonOpaqueMasks[maskIndex + 1] = 0;
+                    this.fluidMasks[maskIndex] = 0;
+                    this.fluidMasks[maskIndex + 1] = 0;
+                    opaque = 0;
+                    pureFluid = 0;
+                    partialFluid = 0;
+                    continue;
+                }
+
                 long nonOpaque = (notEmpty^opaque)&~pureFluid;
                 long fluid = pureFluid|partialFluid;
-                this.opaqueMasks[(i >> 5) - 2] = (int) opaque;
-                this.opaqueMasks[(i >> 5) - 1] = (int) (opaque>>>32);
-                this.nonOpaqueMasks[(i >> 5) - 2] = (int) nonOpaque;
-                this.nonOpaqueMasks[(i >> 5) - 1] = (int) (nonOpaque>>>32);
-                this.fluidMasks[(i >> 5) - 2] = (int) fluid;
-                this.fluidMasks[(i >> 5) - 1] = (int) (fluid>>>32);
+                this.opaqueMasks[maskIndex] = (int) opaque;
+                this.opaqueMasks[maskIndex + 1] = (int) (opaque>>>32);
+                this.nonOpaqueMasks[maskIndex] = (int) nonOpaque;
+                this.nonOpaqueMasks[maskIndex + 1] = (int) (nonOpaque>>>32);
+                this.fluidMasks[maskIndex] = (int) fluid;
+                this.fluidMasks[maskIndex + 1] = (int) (fluid>>>32);
 
                 int packedEmpty = (int) ((notEmpty>>>32)|notEmpty);
 
@@ -1635,9 +1649,6 @@ public class RenderDataFactory {
         this.maxZ = Integer.MIN_VALUE;
 
         Arrays.fill(this.quadCounters,0);
-        Arrays.fill(this.opaqueMasks, 0);
-        Arrays.fill(this.nonOpaqueMasks, 0);
-        Arrays.fill(this.fluidMasks, 0);
 
         //Prepare everything
         int neighborMskAndFlags = this.prepareSectionData(section._unsafeGetRawDataArray());

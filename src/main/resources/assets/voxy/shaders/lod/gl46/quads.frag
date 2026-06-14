@@ -21,6 +21,7 @@ layout(location = 0) in flat uvec4 interData;
 #ifndef USE_NV_BARRY
 layout(location = 1) in vec2 uv;
 #endif
+layout(location = 2) in vec3 fragmentCameraPos;
 
 #ifdef DEBUG_RENDER
 layout(location = 7) in flat uint quadDebug;
@@ -187,6 +188,16 @@ void main() {
 
     #ifndef PATCHED_SHADER
     colour = computeColour(texPos, colour);
+    #ifdef TRANSLUCENT
+    float fadeStart = max(0.0, uVanillaRenderDistance - uTranslucentFadeWidth);
+    float fadeEnd = uVanillaRenderDistance + uTranslucentFadeWidth;
+    float fade = smoothstep(fadeStart, fadeEnd, length(fragmentCameraPos.xz));
+    colour.a *= fade;
+    if (colour.a <= 0.0039f) {
+        discard;
+        return;
+    }
+    #endif
     outColour = colour;
 
     #ifdef DEBUG_RENDER
@@ -216,6 +227,16 @@ void main() {
 
     uint face = getFace();
     face ^= uint((face&1u)!=uint(gl_FrontFacing!=((face>>1)!=0u)));
+    #ifdef TRANSLUCENT
+    float fadeStart = max(0.0, uVanillaRenderDistance - uTranslucentFadeWidth);
+    float fadeEnd = uVanillaRenderDistance + uTranslucentFadeWidth;
+    float fade = smoothstep(fadeStart, fadeEnd, length(fragmentCameraPos.xz));
+    colour.a *= fade;
+    if (colour.a <= 0.0039f) {
+        discard;
+        return;
+    }
+    #endif
     voxy_emitFragment(VoxyFragmentParameters(colour, tile, texPos, face, modelId, getLightmap(), tint, model.customId));
 
     #endif
