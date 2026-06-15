@@ -37,10 +37,18 @@ public class MixinRenderSectionManager {
 
     @Shadow @Final private ChunkBuilder builder;
 
-    // Sodium 0.6.13: Constructor signature is (ClientLevel, int, CommandList)
-    // SortBehavior parameter removed in Sodium 0.6.x
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void voxy$resetChunkTracker(ClientLevel level, int renderDistance, CommandList commandList, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/client/multiplayer/ClientLevel;ILnet/caffeinemc/mods/sodium/client/gl/device/CommandList;)V", at = @At("TAIL"), require = 0)
+    private void voxy$resetChunkTrackerSodium06(ClientLevel level, int renderDistance, CommandList commandList, CallbackInfo ci) {
+        this.voxy$resetChunkTracker();
+    }
+
+    @Inject(method = "<init>(Lnet/minecraft/client/multiplayer/ClientLevel;ILnet/caffeinemc/mods/sodium/client/render/chunk/translucent_sorting/SortBehavior;Lnet/caffeinemc/mods/sodium/client/gl/device/CommandList;)V", at = @At("TAIL"), require = 0)
+    private void voxy$resetChunkTrackerSodium08(ClientLevel level, int renderDistance, SortBehavior sortBehavior, CommandList commandList, CallbackInfo ci) {
+        this.voxy$resetChunkTracker();
+    }
+
+    @Unique
+    private void voxy$resetChunkTracker() {
         if (level.levelRenderer != null) {
             var system = ((IGetVoxyRenderSystem)(level.levelRenderer)).getVoxyRenderSystem();
             if (system != null) {
