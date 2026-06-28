@@ -17,9 +17,7 @@ base {
 sourceSets {
     main {
         java {
-            // Sodium config API (changed in Sodium 0.6.x)
-            exclude 'me/cortex/voxy/client/config/SodiumConfigBuilder.java'
-            exclude 'me/cortex/voxy/client/config/VoxyConfigMenu.java'
+            // Legacy Fabric config page jumper
             exclude 'me/cortex/voxy/client/config/IConfigPageSetter.java'
 
             // ModMenu integration (Fabric-only)
@@ -38,8 +36,10 @@ sourceSets {
             exclude 'me/cortex/voxy/client/VoxyDebugScreenEntry.java'
             exclude 'me/cortex/voxy/client/mixin/minecraft/MixinDebugScreenEntryList.java'
 
-            // Sodium config integration mixin
+            // Obsolete Sodium Options API integration. Sodium 0.8 uses Sodium's built-in config API instead.
             exclude 'me/cortex/voxy/client/config/VoxySodiumOptions.java'
+
+            // Legacy Sodium config integration mixin
             exclude 'me/cortex/voxy/client/mixin/sodium/MixinVideoSettingsScreen.java'
 
             // Blaze3D OpenGL debug mixin (GlDebug class not accessible in MC 1.21.1)
@@ -208,13 +208,6 @@ dependencies {
 
     // Lithium for NeoForge (0.15.1 - latest for MC 1.21.1)
     implementation("maven.modrinth:lithium:mc1.21.1-0.15.1-neoforge")
-
-    // SodiumOptionsAPI for Video Settings integration
-    // Provides event API to add custom pages to Sodium's options GUI
-    compileOnly("maven.modrinth:sodium-options-api:neoforge-1.21.1-1.0.10")
-
-    // Reese's Sodium Options - required by SodiumOptionsAPI
-    compileOnly("maven.modrinth:reeses-sodium-options:mc1.21.3-1.8.0+neoforge")
 
     // Optional mod dependencies - commented out for initial port
     // TODO: Add NeoForge versions when available
